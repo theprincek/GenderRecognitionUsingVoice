@@ -73,6 +73,13 @@ disp = ConfusionMatrixDisplay(confusion_matrix=c_matrix,
                               display_labels=list(label_encode.inverse_transform(model.classes_)))
 disp.plot()
 plt.title("Confusion Matrix (Logistic Regression)")
+mngr = plt.get_current_fig_manager()
+try:
+  width = 600
+  height = 500
+  mngr.window.setGeometry(134, 134, width, height)
+except AttributeError:
+  mngr.full_screen_toggle()
 plt.show()
 
 joblib.dump(model, 'models/log_reg.pkl')
@@ -88,6 +95,13 @@ disp = ConfusionMatrixDisplay(confusion_matrix=c_matrix,
                               display_labels=list(label_encode.inverse_transform(model.classes_)))
 disp.plot()
 plt.title("Confusion Matrix (SVM)")
+mngr = plt.get_current_fig_manager()
+try:
+  width = 600
+  height = 500
+  mngr.window.setGeometry(134, 134, width, height)
+except AttributeError:
+  mngr.full_screen_toggle()
 plt.show()
 
 joblib.dump(model, 'models/svm.pkl')
@@ -103,6 +117,13 @@ disp = ConfusionMatrixDisplay(confusion_matrix=c_matrix,
                               display_labels=list(label_encode.inverse_transform(model.classes_)))
 disp.plot()
 plt.title("Confusion Matrix (Random Forest)")
+mngr = plt.get_current_fig_manager()
+try:
+  width = 600
+  height = 500
+  mngr.window.setGeometry(134, 134, width, height)
+except AttributeError:
+  mngr.full_screen_toggle()
 plt.show()
 
 joblib.dump(model, 'models/random_forest.pkl')
@@ -129,6 +150,13 @@ disp = ConfusionMatrixDisplay(confusion_matrix=best_c_matrix,
                               display_labels=list(label_encode.inverse_transform(best_model.classes_)))
 disp.plot()
 plt.title("Confusion Matrix (KNN)")
+mngr = plt.get_current_fig_manager()
+try:
+  width = 600
+  height = 500
+  mngr.window.setGeometry(134, 134, width, height)
+except AttributeError:
+  mngr.full_screen_toggle()
 plt.show()
 
 print("\nSelecting best accuracy model for KNN")

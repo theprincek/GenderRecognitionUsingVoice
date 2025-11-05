@@ -10,8 +10,7 @@ print("\n\nLoading dataset")
 
 df = pd.read_csv('voice.csv')
 
-
-print("\n\nDataset description:")
+print("\nDataset description:")
 
 def describe(head=0,shape=0,info=0,description=0):
   if head==1:
@@ -35,27 +34,32 @@ describe(1,1,1,1)
 
 ## Encoding
 
-print("\n\nEncoding:")
+input("\n\nContinue ..")
+print("\n\nEncoding:\n")
 
 from sklearn.preprocessing import LabelEncoder
 import joblib
 label_encoder=LabelEncoder()
 
 df["gender_encoded"]=label_encoder.fit_transform(df["gender"])
+for original, encoded in zip(label_encoder.classes_, range(len(label_encoder.classes_))):
+  print(f"{original} -> {encoded}")
 joblib.dump(label_encoder,'label_encode.pkl')
 
 df=df.drop(labels="gender",axis=1)
-describe(head=1,info=1)
+describe(head=1)
 
 
 ## Data Cleaning
 
+input("\n\nContinue ..")
 print("\n\nMissing values per column:")
 
 missing_values = df.isnull().sum()
 print(missing_values)
 
 
+input("\n\nContinue ..")
 print("\n\nNumber of outliers in each column:")
 
 z_scores = (df - df.mean()) / df.std()
@@ -66,6 +70,7 @@ print(num_outliers)
 
 num_outliers_per_row = outliers.sum(axis=1)
 
+input("\n\nContinue ..")
 print("\nOriginal DataFrame:")
 describe(shape=1,description=1)
 
@@ -77,6 +82,7 @@ describe(shape=1,description=1)
 
 ## Principle Component Analysis (PCA)
 
+input("\n\nContinue to Feature Selection... (Press Enter)")
 print("\n\nFinding out most significant features:")
 
 df2 = df.iloc[:,0:10]
@@ -85,6 +91,7 @@ for k in range(1,11):
   ax = plt.subplot(2,5,k)
   sns.kdeplot(df2.loc[df['gender_encoded'] == 0, df2.columns[k-1]], color= 'green', label='F')
   sns.kdeplot(df2.loc[df['gender_encoded'] == 1, df2.columns[k-1]], color= 'red', label='M')
+plt.get_current_fig_manager().window.showMaximized()
 plt.show()
 
 df2 = df.iloc[:,10:20]
@@ -93,9 +100,9 @@ for k in range(1,11):
   ax = plt.subplot(2,5,k)
   sns.kdeplot(df2.loc[df['gender_encoded'] == 0, df2.columns[k-1]], color= 'green', label='F')
   sns.kdeplot(df2.loc[df['gender_encoded'] == 1, df2.columns[k-1]], color= 'red', label='M')
+plt.get_current_fig_manager().window.showMaximized()
 plt.show()
 
-# exit()
 
 print("Selecting most significant features:")
 
@@ -107,11 +114,15 @@ print("\n\nFinding out correlated pairs of features:")
 
 plt.figure(figsize=(15,10),dpi=100)
 sns.heatmap(data=df.drop(["gender_encoded"],axis=1).corr(),cmap="viridis",annot=True,linewidth=0.5)
+plt.get_current_fig_manager().window.showMaximized()
 plt.show()
 
 print("\n\nFinding less significant features out of correlated features")
-
-sns.pairplot(df,hue="gender_encoded")
+plot_df = df.copy()
+plot_df["gender_label"] = label_encoder.inverse_transform(plot_df["gender_encoded"])
+plot_df.drop("gender_encoded",axis=1,inplace=True)
+sns.pairplot(plot_df,hue="gender_label")
+plt.get_current_fig_manager().window.showMaximized()
 plt.show()
 
 # exit()
