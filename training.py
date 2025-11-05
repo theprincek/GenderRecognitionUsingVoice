@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 
-
 print("\n\nLoading dataset")
 
 df = pd.read_csv('voice_preprocessed.csv')
@@ -12,24 +11,23 @@ df = pd.read_csv('voice_preprocessed.csv')
 print("\n\nInitializing training function with Stratified K Fold")
 
 from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
 def train(data,model, describe=True):
   X = data.drop('gender_encoded',axis=1)
   y = data[['gender_encoded']]
-  rskf = RepeatedStratifiedKFold(n_splits=7,
-                   n_repeats=3,
-                   random_state=42)
+  rskf = RepeatedStratifiedKFold(n_splits=7, n_repeats=3, random_state=42)
 
   lst_accu_stratified = []
   best_accu = -1
   best_train_index = -1
   best_test_index = -1
+
   for train_index, test_index in rskf.split(X, y):
     x_train, x_test = X.iloc[train_index], X.iloc[test_index]
     y_train, y_test = y.iloc[train_index], y.iloc[test_index]
     model.fit(x_train, np.ravel(y_train))
-    score=model.score(x_test, y_test)
+    score = model.score(x_test, y_test)
     lst_accu_stratified.append(score)
     if score > best_accu:
       best_train_index = train_index
@@ -39,21 +37,25 @@ def train(data,model, describe=True):
   y_train, y_test = y.iloc[best_train_index], y.iloc[best_test_index]
   model.fit(x_train, np.ravel(y_train))
 
-  max_accuracy=max(lst_accu_stratified)*100
-  mean_accuracy = np.mean(lst_accu_stratified)*100
+  y_pred = model.predict(x_test)
 
-  c_matrix = confusion_matrix(y_test, model.predict(x_test))
+  mean_accuracy = np.mean(lst_accu_stratified) * 100
+  max_accuracy = max(lst_accu_stratified) * 100
+  precision = precision_score(y_test, y_pred) * 100
+  recall = recall_score(y_test, y_pred) * 100
+  f1 = f1_score(y_test, y_pred) * 100
+
+  c_matrix = confusion_matrix(y_test, y_pred)
 
   if describe:
-    print('\nMaximum Accuracy:', max_accuracy, '%')
     print('\nMean Accuracy:', mean_accuracy, '%')
+    print('\nBest Model Scores :-')
+    print('Accuracy: ', max_accuracy, '%')
+    print("Precision:", precision, '%')
+    print("Recall:", recall, '%')
+    print("F1 Score:", f1, '%')
 
-    print("\nSelecting best accuracy split:")
-
-    print("Train data shape:{}".format(x_train.shape))
-    print("Test data shape:{}".format(x_test.shape))
-
-  return model,max_accuracy, mean_accuracy, c_matrix
+  return model, max_accuracy, mean_accuracy, c_matrix, precision, recall, f1
 
 
 ## Training with various ML Models
@@ -67,7 +69,7 @@ label_encode = joblib.load("label_encode.pkl")
 print("\n\nTraining with Logistic regression:")
 
 from sklearn.linear_model import LogisticRegression
-model, best_accuracy, mean_accuracy, c_matrix = train(data=df,
+model, best_accuracy, mean_accuracy, c_matrix, precision, recall, f1 = train(data=df,
              model=LogisticRegression())
 disp = ConfusionMatrixDisplay(confusion_matrix=c_matrix,
                               display_labels=list(label_encode.inverse_transform(model.classes_)))
@@ -89,7 +91,7 @@ print('\nLogistic Regression model Saved Successfully')
 print("\n\nTraining with SVM:")
 
 from sklearn import svm
-model, best_accuracy, mean_accuracy, c_matrix = train(data=df,
+model, best_accuracy, mean_accuracy, c_matrix, precision, recall, f1 = train(data=df,
              model=svm.SVC(kernel='linear'))
 disp = ConfusionMatrixDisplay(confusion_matrix=c_matrix,
                               display_labels=list(label_encode.inverse_transform(model.classes_)))
@@ -111,7 +113,7 @@ print('\nSVM model Saved Successfully')
 print("\n\nTraining with RandomForest:")
 
 from sklearn.ensemble import RandomForestClassifier
-model, best_accuracy, mean_accuracy, c_matrix = train(data=df,
+model, best_accuracy, mean_accuracy, c_matrix, precision, recall, f1 = train(data=df,
              model=RandomForestClassifier())
 disp = ConfusionMatrixDisplay(confusion_matrix=c_matrix,
                               display_labels=list(label_encode.inverse_transform(model.classes_)))
@@ -137,14 +139,20 @@ best_model = None
 best_score = 0
 best_mean_accuracy = 0
 best_c_matrix = None
+best_precision = 0
+best_recall = 0
+best_f1 = 0
 for n in range(5,20):
-  model, best_accuracy, mean_accuracy, c_matrix = train(data=df,
+  model, best_accuracy, mean_accuracy, c_matrix, precision, recall, f1 = train(data=df,
               model=KNeighborsClassifier(n_neighbors = n),describe=False)
   if best_accuracy > best_score:
     best_model = model
     best_mean_accuracy = mean_accuracy
     best_score = best_accuracy
     best_c_matrix = c_matrix
+    best_precision = precision
+    best_recall = recall
+    best_f1 = f1
 
 disp = ConfusionMatrixDisplay(confusion_matrix=best_c_matrix,
                               display_labels=list(label_encode.inverse_transform(best_model.classes_)))
@@ -161,8 +169,12 @@ plt.show()
 
 print("\nSelecting best accuracy model for KNN")
 
-print('\nMaximum Accuracy:', best_accuracy, '%')
 print('\nMean Accuracy:', best_mean_accuracy, '%')
+print('Best Model Scores :-')
+print('Accuracy:', best_accuracy, '%')
+print("Precision:", best_precision, '%')
+print("Recall:", best_recall, '%')
+print("F1 Score:", best_f1, '%')
 
 joblib.dump(best_model, 'models/knn.pkl')
 print('\nKNN model Saved Successfully')
