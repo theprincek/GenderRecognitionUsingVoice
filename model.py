@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import librosa
+import os
 
 
 ## Audio Processing
@@ -19,12 +20,18 @@ def extract_features(audio_file):
   }
 
 audio_file = input("Enter wav <filename> without extension: ")+'.wav'
-features = {}
-try:
-  features = extract_features(audio_file)
-except:
-  print("WAV file not found !!")
+
+if not os.path.isfile(audio_file):
+  print(f"Error: WAV file '{audio_file}' not found!")
   exit()
+
+features = {}
+# try:
+  # features = extract_features(audio_file)
+# except Exception as e:
+  # print(f"An error occurred while processing '{audio_file}': {e}")
+  # exit()
+features = extract_features(audio_file)
 
 X = pd.DataFrame({"q25":[features['q25']],"iqr":[features['iqr']],"meanfun":[features['meanfun']]})
 
