@@ -33,7 +33,10 @@ This project was built using these technologies.
 ## Getting Started
 
 Clone down this repository. You will just need `git` installed on your machine.
-Install python and required libraries ( using pip ).
+Setup Miniconda or Anaconda on your machine.
+Install Python and other Dependencies using Conda.
+
+- conda env create -f environment.yml
 
 ### Show your support
 
