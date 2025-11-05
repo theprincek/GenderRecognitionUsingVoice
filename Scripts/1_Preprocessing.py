@@ -2,13 +2,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 
 
 ## Dataset Analysis
 
 print("\n\nLoading dataset")
 
-df = pd.read_csv('voice.csv')
+df = pd.read_csv(Path(__file__).parent.parent / 'Datasets' / 'voice.csv')
 
 print("\nDataset description:")
 
@@ -34,7 +35,7 @@ describe(1,1,1,1)
 
 ## Encoding
 
-input("\n\nContinue ..")
+input("\n\nContinue .. Press Enter")
 print("\n\nEncoding:\n")
 
 from sklearn.preprocessing import LabelEncoder
@@ -52,14 +53,14 @@ describe(head=1)
 
 ## Data Cleaning
 
-input("\n\nContinue ..")
+input("\n\nContinue .. Press Enter")
 print("\n\nMissing values per column:")
 
 missing_values = df.isnull().sum()
 print(missing_values)
 
 
-input("\n\nContinue ..")
+input("\n\nContinue .. Press Enter")
 print("\n\nNumber of outliers in each column:")
 
 z_scores = (df - df.mean()) / df.std()
@@ -70,7 +71,7 @@ print(num_outliers)
 
 num_outliers_per_row = outliers.sum(axis=1)
 
-input("\n\nContinue ..")
+input("\n\nContinue .. Press Enter")
 print("\nOriginal DataFrame:")
 describe(shape=1,description=1)
 
@@ -137,4 +138,4 @@ describe(shape=1,info=1)
 
 print("\n\nSaving dataset")
 
-df.to_csv("voice_preprocessed.csv", index=False)
+df.to_csv(Path(__file__).parent.parent / 'Datasets' / 'voice_preprocessed.csv', index=False)

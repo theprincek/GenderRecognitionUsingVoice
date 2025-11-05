@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
 print("\n\nLoading dataset")
 
-df = pd.read_csv('voice_preprocessed.csv')
+df = pd.read_csv(Path(__file__).parent.parent / 'Datasets' / 'voice_preprocessed.csv')
 
 
 ## Stratified K Fold Cross Validation

@@ -3,6 +3,7 @@ import numpy as np
 import joblib
 import librosa
 import os
+from pathlib import Path
 
 
 ## Audio Processing
@@ -20,6 +21,7 @@ def extract_features(audio_file):
   }
 
 audio_file = input("Enter wav <filename> without extension: ")+'.wav'
+audio_file = Path(__file__).parent.parent / 'AudioFiles' / audio_file
 
 if not os.path.isfile(audio_file):
   print(f"Error: WAV file '{audio_file}' not found!")
